@@ -33,8 +33,32 @@
     <script src="_content/BethanysPieShopHRM.ComponentsLibrary/deliveryMap.js"></script>
 
     <script>
+        window.reportLocation = function (instance) {
+            this.navigator.geolocation.getCurrentPosition(position =>
+            {
+                let { latitude, longitude } = position.coords;
+
+                instance.invokeMethodAsync("SetPosition", { latitude, longitude })
+                    .then(() => console.log("SetPosition complete"));
+
+                //DotNet.invokeMethodAsync(
+                //    'BethanysPieShopHRM.Server',
+                //    'SetPosition',
+                //    { latitude, longitude })
+                //    .then(() => console.log("complete"));
+            });
+        }
+    </script>
+
+    <script>
         window.getConnection = function () {
-            return navigator.connection.effectiveType;
+            
+            let {
+                effectiveType,
+                rtt,
+                downlink
+            } = navigator.connection;
+            return { effectiveType, rtt, downlink };
         }
     </script>
 

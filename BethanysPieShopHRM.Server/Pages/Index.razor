@@ -7,12 +7,39 @@
 <h3>Using this application, you can manage our wonderful staff working for us all over the world, bringing people the best pies ever!</h3>
 
 <div>
-    Your connection type is : @connectionType
+    @if(connection != null)
+    {
+        <div>Connection type: @connection.effectiveType</div>
+        <div>Connection link: @connection.downlink</div>
+        <div>Connection RTT: @connection.rtt</div>
+    }
+</div>
+
+<div>
+    @if (coordinates != null)
+    {
+        <div>You are at @coordinates.latitude by @coordinates.longitude</div>
+    }
 </div>
 
 @code { 
 
+    public class Connection
+    {
+        public string effectiveType { get; set; }
+        public int rtt { get; set; }
+        public int downlink { get; set; }
+    }
+
+    public class Coordinates
+    {
+        public double latitude { get; set; }
+        public double longitude { get; set; }
+    }
+
     string connectionType = "";
+    Connection connection = null;
+    Coordinates coordinates = null;
 
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -20,8 +47,18 @@
 
         if (firstRender)
         {
-            connectionType = await JS.InvokeAsync<string>("getConnection");
+            connection = await JS.InvokeAsync<Connection>("getConnection");
             StateHasChanged();
+
+
+            await JS.InvokeVoidAsync("reportLocation", DotNetObjectReference.Create(this));
         }
+    }
+
+    [JSInvokable]
+    public void SetPosition(Coordinates position)
+    {
+        coordinates = position;
+        StateHasChanged();
     }
 }
